@@ -1,6 +1,10 @@
 import { configService, S3 } from '@config/env.config';
 
 const getTypeMessage = (msg: any) => {
+  if (!msg?.message) {
+    return { messageType: 'unknown' };
+  }
+
   let mediaId: string;
 
   if (
@@ -9,14 +13,17 @@ const getTypeMessage = (msg: any) => {
       (msg?.message?.videoMessage === undefined &&
         msg?.message?.viewOnceMessageV2?.message?.videoMessage === undefined))
   )
-    mediaId = msg.message?.mediaUrl;
+    mediaId = msg?.message?.mediaUrl;
   else mediaId = msg.key?.id;
 
   const types = {
     conversation: msg?.message?.conversation,
     extendedTextMessage: msg?.message?.extendedTextMessage?.text,
     contactMessage: msg?.message?.contactMessage?.displayName,
-    locationMessage: msg?.message?.locationMessage?.degreesLatitude.toString(),
+    locationMessage:
+      msg?.message?.locationMessage?.degreesLatitude != null
+        ? msg?.message?.locationMessage?.degreesLatitude.toString()
+        : undefined,
     viewOnceMessageV2:
       msg?.message?.viewOnceMessageV2?.message?.imageMessage?.url ||
       msg?.message?.viewOnceMessageV2?.message?.videoMessage?.url ||
